@@ -1,0 +1,233 @@
+import random
+import time
+
+lst_10 = []
+lst_100 = []
+lst_1000 = []
+lst_10000 = []
+count = 0
+ten = 10
+hngr = 100
+thousand = 1000
+thousand_10 = 10000
+
+while True:
+    lst_10.append(random.randint(0, 10000))
+    if len(lst_10) == ten:
+        break
+start_time = time.time()
+for run in range(len(lst_10) - 1):
+    for i in range(len(lst_10) - 1):
+        if lst_10[i] > lst_10[i + 1]:
+            lst_10[i], lst_10[i + 1] = lst_10[i + 1], lst_10[i]
+print('Bubble for 10 ---%s second---'% (time.time()-start_time))
+
+#Bubble for 100
+while True:
+    lst_100.append(random.randint(0, 10000))
+    if len(lst_100) == hngr:
+        break
+start_time = time.time()
+for run in range(len(lst_100) - 1):
+    for i in range(len(lst_100) - 1):
+        if lst_100[i] > lst_100[i + 1]:
+            lst_100[i], lst_100[i + 1] = lst_100[i + 1], lst_100[i]
+print('Bubble for 100 ---%s second---' % (time.time()-start_time))
+
+#Bubble for 1000
+while True:
+    lst_1000.append(random.randint(0, 10000))
+    if len(lst_1000) == thousand:
+        break
+start_time = time.time()
+for run in range(len(lst_1000) - 1):
+    for i in range(len(lst_1000) - 1):
+        if lst_1000[i] > lst_1000[i + 1]:
+            lst_1000[i], lst_1000[i + 1] = lst_1000[i + 1], lst_1000[i]
+print('Bubble for 1000 ---%s second---' % (time.time()-start_time))
+
+#Bubble for 10000
+while True:
+    lst_10000.append(random.randint(0, 10000))
+    if len(lst_10000) == thousand_10:
+        break
+start_time = time.time()
+for run in range(len(lst_10000) - 1):
+    for i in range(len(lst_10000) - 1):
+        if lst_10000[i] > lst_10000[i + 1]:
+            lst_10000[i], lst_10000[i + 1] = lst_10000[i + 1], lst_10000[i]
+print('Bubble for 10000 ---%s second---' % (time.time()-start_time))
+
+# Shell sort
+def shell_sort (lst):
+    n = len(lst)
+    step = n//2
+    while step > 0:
+        for i in range(step, n):
+            j = i
+            while j>=step and lst[j] < lst[j - step]:
+                lst[j], lst[j - step] = lst[j - step],lst[j]
+                j = j - step
+        step = step//2
+#Shell sort for 10
+lst_10 = []
+while True:
+    lst_10.append(random.randint(0, 10000))
+    if len(lst_10) == ten:
+        break
+start_time = time.time()
+shell_sort(lst_10)
+print('Shell_sort for 10 ---%s second---'% (time.time()-start_time))
+
+#Shell sort for 100
+lst_100 = []
+while True:
+    lst_100.append(random.randint(0, 10000))
+    if len(lst_100) == hngr:
+        break
+start_time = time.time()
+shell_sort(lst_100)
+print('Shell_sort for 100 ---%s second---'% (time.time()-start_time))
+
+#Shell sort for 1000
+lst_1000 = []
+while True:
+    lst_1000.append(random.randint(0, 10000))
+    if len(lst_1000) == thousand:
+        break
+start_time = time.time()
+shell_sort(lst_1000)
+print('Shell_sort for 1000 ---%s second---'% (time.time()-start_time))
+
+#Shell sort for 10000
+lst_10000 = []
+while True:
+    lst_10000.append(random.randint(0, 10000))
+    if len(lst_10000) == thousand_10:
+        break
+start_time = time.time()
+shell_sort(lst_10000)
+print('Shell_sort for 10000 ---%s second---'% (time.time()-start_time))
+
+# Merge sort:
+def merge_sort(A):
+    if len(A) == 1 or len(A) == 0:
+        return A
+    L = merge_sort(A[:len(A) // 2])
+    R = merge_sort(A[len(A) // 2:])
+    n = m = k = 0
+    C = [0] * (len(L) + len(R))
+    while n < len(L) and m < len(R):
+        if L[n] <= R[m]:
+            C[k] = L[n]
+            n += 1
+        else:
+            C[k] = R[m]
+            m += 1
+        k += 1
+    while n < len(L):
+        C[k] = L[n]
+        n += 1
+        k += 1
+    while m < len(R):
+        C[k] = R[m]
+        m += 1
+        k += 1
+    for i in range(len(A)):
+        A[i] = C[i]
+    return A
+
+# Merge sort for 10
+lst_10 = []
+while True:
+    lst_10.append(random.randint(0, 10000))
+    if len(lst_10) == ten:
+        break
+
+start_time = time.time()
+merge_sort(lst_10)
+print('Merge_sort for 10 ---%s second---'% (time.time()-start_time))
+
+# Merge sort for 100
+lst_100 = []
+while True:
+    lst_100.append(random.randint(0, 10000))
+    if len(lst_100) == hngr:
+        break
+
+start_time = time.time()
+merge_sort(lst_100)
+print('Merge_sort for 100 ---%s second---'% (time.time()-start_time))
+
+# Merge sort for 1000
+lst_1000 = []
+while True:
+    lst_1000.append(random.randint(0, 10000))
+    if len(lst_1000) == thousand:
+        break
+
+start_time = time.time()
+merge_sort(lst_1000)
+print('Merge_sort for 1000 ---%s second---'% (time.time()-start_time))
+
+# Merge sort for 10000
+lst_10000 = []
+while True:
+    lst_10000.append(random.randint(0, 10000))
+    if len(lst_10000) == thousand_10:
+        break
+
+start_time = time.time()
+merge_sort(lst_10000)
+print('Merge_sort for 10000 ---%s second---'% (time.time()-start_time))
+
+# Fast sort
+def quick_sort(a):
+    if len(a) > 1:
+        x = a[random.randint(0,len(a) - 1)]
+        low = [u for u in a if u < x]
+        eq = [u for u in a if u == x]
+        hi = [u for u in a if u > x]
+        a = quick_sort(low) + eq + quick_sort(hi)
+
+    return a
+
+# Quick sort for 10
+lst_10 = []
+while True:
+    lst_10.append(random.randint(0, 10000))
+    if len(lst_10) == ten:
+        break
+start_time = time.time()
+a = quick_sort(lst_10)
+print('Fast_sort for 10 ---%s second---'% (time.time()-start_time))
+
+# Quick sort for 100
+lst_100 = []
+while True:
+    lst_100.append(random.randint(0, 10000))
+    if len(lst_100) == hngr:
+        break
+start_time = time.time()
+a = quick_sort(lst_100)
+print('Fast_sort for 100 ---%s second---'% (time.time()-start_time))
+
+# Quick sort for 1000
+lst_1000 = []
+while True:
+    lst_1000.append(random.randint(0, 10000))
+    if len(lst_1000) == thousand:
+        break
+start_time = time.time()
+a = quick_sort(lst_1000)
+print('Fast_sort for 10 ---%s second---'% (time.time()-start_time))
+
+# Quick sort for 100
+lst_10000 = []
+while True:
+    lst_10000.append(random.randint(0, 10000))
+    if len(lst_10000) == thousand_10:
+        break
+start_time = time.time()
+a = quick_sort(lst_10000)
+print('Fast_sort for 100 ---%s second---'% (time.time()-start_time))
