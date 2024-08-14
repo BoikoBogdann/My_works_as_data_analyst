@@ -1,0 +1,243 @@
+# Моделювання роботи ресурсу без впровадження рекомендації
+
+! pip install simpy
+import simpy
+import random
+import pandas as pd
+import numpy as np
+
+# Вхідні дані
+a = 1000  # середня кількість відвідувачів за день
+
+# Історичні дані
+b = 0.05  # ймовірність кліку на рекламу
+c = 0.2  # ймовірність реєстрації після кліку
+d = 0.1  # ймовірність депозиту після реєстрації
+
+# Фактори
+ranking_factor = 1.5  # коефіцієнт, що відображає вплив рейтингу
+advertisement_factor = 1.2  # коефіцієнт, що відображає вагу реклами
+
+# Список для зберігання даних про кожного відвідувача
+data = []
+
+# Основна функція для моделювання місяця роботи сайту з заданими параметрами
+def simulate_month(average_visitors_per_day, historical_click_rate, historical_registration_rate, historical_deposit_rate, ranking_factor, advertisement_factor, days=100):
+    data = []  # Список для зберігання даних про кожного відвідувача
+    
+    # Процес для моделювання одного дня роботи сайту
+    def simulate_day(env, day_number):
+        visitors_today = np.random.poisson(average_visitors_per_day)
+        for visitor_id in range(1, visitors_today + 1):
+            visitor_data = {
+                'Day': day_number,
+                'Visitor ID': f'{day_number}-{visitor_id}',
+                'Clicked': 0,
+                'Registered': 0,
+                'Made Deposit': 0,
+                'Deposit Amount': 0
+            }
+
+            # Визначаємо, чи клікнув відвідувач на посилання
+            if random.random() < historical_click_rate * ranking_factor * advertisement_factor:
+                visitor_data['Clicked'] = 1
+                # Визначаємо, чи зареєструвався відвідувач
+                if random.random() < historical_registration_rate:
+                    visitor_data['Registered'] = 1
+                    # Визначаємо, чи зробив депозит
+                    if random.random() < historical_deposit_rate:
+                        visitor_data['Made Deposit'] = 1
+                        # Розрахунок суми депозиту на основі пуасонівського розподілу
+                        deposit_amount = np.random.poisson(10)
+                        visitor_data['Deposit Amount'] = deposit_amount
+
+            data.append(visitor_data)
+            yield env.timeout(1)
+
+    # Процес для моделювання кількох днів роботи сайту
+    def simulate_days(env):
+        for day in range(1, days + 1):
+            env.process(simulate_day(env, day))
+            yield env.timeout(1)
+            
+    env = simpy.Environment()
+    env.process(simulate_days(env))
+    env.run()
+
+    # Створюємо DataFrame з результатами
+    df = pd.DataFrame(data)
+    return df
+
+df = simulate_month(a, b, c, d, ranking_factor, advertisement_factor)
+
+total_data = df.groupby('Day').sum()
+
+total_data
+
+bootstrap_point = []
+bootstrap_clics = []
+bootstrap_Regs = []
+bootstrap_Dep = []
+bootstrap_Depsum = []
+
+for i in range(10000):
+    
+    sample = total_data.sample(n=30, replace=True)
+    result = sample.sum()
+    bootstrap_point.append(i)
+    bootstrap_clics.append(result[0])
+    bootstrap_Regs.append(result[1])
+    bootstrap_Dep.append(result[2])
+    bootstrap_Depsum.append(result[3])
+
+bootstrap_data = pd.DataFrame({
+    'Entry':bootstrap_point,
+    'Clicks':bootstrap_clics,
+    'Registrations':bootstrap_Regs,
+    'Deposits':bootstrap_Dep,
+    'FTD SUM':bootstrap_Depsum
+})
+
+bootstrap_data.head()
+
+import matplotlib.pyplot as plt
+
+
+# Побудова гістограми
+plt.figure(figsize=(10, 6))
+plt.hist(bootstrap_data["Registrations"], bins=20, color='skyblue', edgecolor='black')
+
+# Налаштування заголовка та підписів осей
+plt.title('Distribution of Registrations', fontsize=16)
+plt.xlabel('Registrations', fontsize=14)
+plt.ylabel('Frequency', fontsize=14)
+
+# Показати гістограму
+plt.show()
+
+
+plt.figure(figsize=(10, 6))
+plt.hist(bootstrap_data["Deposits"], bins=20, color='skyblue', edgecolor='black')
+
+# Налаштування заголовка та підписів осей
+plt.title('Distribution of FTD', fontsize=16)
+plt.xlabel('FTD', fontsize=14)
+plt.ylabel('Frequency', fontsize=14)
+
+# Показати гістограму
+plt.show()
+
+plt.figure(figsize=(10, 6))
+plt.hist(bootstrap_data["FTD SUM"], bins=20, color='skyblue', edgecolor='black')
+
+# Налаштування заголовка та підписів осей
+plt.title('Distribution of FTD SUM', fontsize=16)
+plt.xlabel('FTD SUM', fontsize=14)
+plt.ylabel('Frequency', fontsize=14)
+
+# Показати гістограму
+plt.show()
+
+bootstrap_data.describe()
+
+# Моделювання роботи ресурсу з впровадження рекомендації (Ratings)
+Змоделюємо ситуцію коли бренд підвищили в рейтингу з 5 на 3 позицію, відповідно ranking_factor збільшився вдвічі, 
+також був запроваджений поп ап
+
+ranking_factor_changed = 3  # коефіцієнт, що відображає вплив рейтингу
+advertisement_factor_changed = 2  # коефіцієнт, що відображає вагу реклами
+
+df_changed = simulate_month(a,b,c,d, ranking_factor_changed, advertisement_factor_changed)
+
+total_data_changed = df_changed.groupby('Day').sum()
+
+bootstrap_point_changed = []
+bootstrap_clics_changed = []
+bootstrap_Regs_changed = []
+bootstrap_Dep_changed = []
+bootstrap_Depsum_changed = []
+
+for i in range(10000):
+    sample = total_data_changed.sample(n=30, replace=True)
+    result = sample.sum()
+    bootstrap_point_changed.append(i)
+    bootstrap_clics_changed.append(result[0])
+    bootstrap_Regs_changed.append(result[1])
+    bootstrap_Dep_changed.append(result[2])
+    bootstrap_Depsum_changed.append(result[3])
+
+bootstrap_data_changed = pd.DataFrame({
+    'Entry':bootstrap_point_changed,
+    'Clicks':bootstrap_clics_changed,
+    'Registrations':bootstrap_Regs_changed,
+    'Deposits':bootstrap_Dep_changed,
+    'FTD SUM':bootstrap_Depsum_changed
+})
+
+bootstrap_data_changed.describe()
+
+# Побудова гістограми
+plt.figure(figsize=(10, 6))
+plt.hist(bootstrap_data_changed["Registrations"], bins=20, color='skyblue', edgecolor='black')
+
+# Налаштування заголовка та підписів осей
+plt.title('Distribution of Registrations', fontsize=16)
+plt.xlabel('Registrations', fontsize=14)
+plt.ylabel('Frequency', fontsize=14)
+
+# Показати гістограму
+plt.show()
+
+plt.figure(figsize=(10, 6))
+plt.hist(bootstrap_data_changed["Deposits"], bins=20, color='skyblue', edgecolor='black')
+
+# Налаштування заголовка та підписів осей
+plt.title('Distribution of FTD', fontsize=16)
+plt.xlabel('FTD', fontsize=14)
+plt.ylabel('Frequency', fontsize=14)
+
+# Показати гістограму
+plt.show()
+
+plt.figure(figsize=(10, 6))
+plt.hist(bootstrap_data_changed["FTD SUM"], bins=20, color='skyblue', edgecolor='black')
+
+# Налаштування заголовка та підписів осей
+plt.title('Distribution of FTD SUM', fontsize=16)
+plt.xlabel('FTD SUM', fontsize=14)
+plt.ylabel('Frequency', fontsize=14)
+
+# Показати гістограму
+plt.show()
+
+# Порівняння
+
+plt.figure(figsize=(10, 6))
+plt.hist(bootstrap_data_changed["Registrations"], bins=20, alpha=0.5, label='Scenario 1', color='blue', edgecolor='black')
+plt.hist(bootstrap_data["Registrations"], bins=20, alpha=0.5, label='Scenario 2', color='green', edgecolor='black')
+
+plt.title('Comparison of Registrations in Two Scenarios')
+plt.xlabel('Registrations')
+plt.ylabel('Frequency')
+plt.legend()
+plt.show()
+
+plt.figure(figsize=(10, 6))
+plt.hist(bootstrap_data_changed["Deposits"], bins=20, alpha=0.5, label='Scenario 1', color='blue', edgecolor='black')
+plt.hist(bootstrap_data["Deposits"], bins=20, alpha=0.5, label='Scenario 2', color='green', edgecolor='black')
+
+plt.title('Comparison of Deposits in Two Scenarios')
+plt.xlabel('Deposits')
+plt.ylabel('Frequency')
+plt.legend()
+plt.show()
+
+plt.figure(figsize=(10, 6))
+plt.hist(bootstrap_data_changed["FTD SUM"], bins=20, alpha=0.5, label='Scenario 1', color='blue', edgecolor='black')
+plt.hist(bootstrap_data["FTD SUM"], bins=20, alpha=0.5, label='Scenario 2', color='green', edgecolor='black')
+
+plt.title('Comparison of FTD SUM in Two Scenarios')
+plt.xlabel('FTD SUM')
+plt.ylabel('Frequency')
+plt.legend()
+plt.show()
